@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlockCraft</title>
-    <link rel="icon" href="\favicon.ico" type="image/x-icon">
+    <title>BlockWorld</title>
+    <link rel="icon" href="/favicon.ico" type="image/x-icon">
 
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { overflow: hidden; font-family: 'Courier New', monospace; background: #000; }
+        body {
+  overflow: hidden;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont,
+               'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: #000;
+}
+
         canvas { display: block; }
         
         #start-screen {
@@ -34,11 +40,6 @@
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.menu-box:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
-}
-
 h1 {
     font-size: 3rem;
     margin-bottom: 25px;
@@ -46,7 +47,7 @@ h1 {
     text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
 }
 
-input {
+input[type="text"] {
     padding: 15px 20px;
     font-size: 1.1rem;
     width: 320px;
@@ -60,6 +61,61 @@ input {
     box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.4);
     transition: background 0.3s ease;
 }
+/* ───────── Custom Toggle Checkbox ───────── */
+.toggle {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.toggle input {
+    display: none; /* hide real checkbox */
+}
+
+/* Track */
+.toggle .slider {
+    position: relative;
+    width: 48px;
+    height: 26px;
+    background: #333;
+    border-radius: 999px;
+    box-shadow: inset 0 0 0 2px #555;
+    transition: background 0.25s ease, box-shadow 0.25s ease;
+}
+
+/* Knob */
+.toggle .slider::before {
+    content: '';
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 20px;
+    height: 20px;
+    background: #eee;
+    border-radius: 50%;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+    transition: transform 0.25s ease, background 0.25s ease;
+}
+
+/* Checked state */
+.toggle input:checked + .slider {
+    background: linear-gradient(145deg, #6cf, #39f);
+    box-shadow: inset 0 0 0 2px #9df;
+}
+
+.toggle input:checked + .slider::before {
+    transform: translateX(22px);
+    background: #fff;
+}
+
+/* Label text */
+.toggle-label {
+    color: #ddd;
+    font-size: 1rem;
+}
+
 
 input:focus {
     background: #444;
@@ -98,41 +154,55 @@ button:hover {
 .slot {
     width: 64px;
     height: 64px;
-    background: rgba(0,0,0,0.5);
-    border: 2px solid #777;
-    border-radius: 12px;
+
+    background: linear-gradient(
+        145deg,
+        rgba(255,255,255,0.16),
+        rgba(255,255,255,0.04)
+    );
+
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 14px;
+
     color: #fff;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+
     font-size: 12px;
     position: relative;
     cursor: pointer;
-    transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+
+    box-shadow:
+        0 6px 16px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease;
 }
 
 .slot:hover {
-    transform: scale(1.1);
-    border-color: #fff;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.5);
-    background: rgba(255,255,255,0.1);
+    transform: translateY(-3px) scale(1.05);
+    border-color: rgba(255,255,255,0.6);
+    box-shadow:
+        0 10px 24px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.35);
 }
 
-.slot.selected {
-    border-color: #fff;
-    background: rgba(255,255,255,0.2);
-    transform: scale(1.05);
-    box-shadow: 0 6px 20px rgba(255,255,255,0.3);
-}
 
 .slot img {
-    width: 40px;
-    height: 40px;
-    image-rendering: pixelated;
-    border-radius: 6px;
+    width: 45px;
+    height: 45px;
 }
+
+
 
 .slot-count {
     font-size: 16px;
@@ -151,20 +221,36 @@ button:hover {
     text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
     font-size: 14px;
     pointer-events: none;
+    z-index: 200; /* ← ADD THIS */
 }
+
 
 #inventory {
     position: fixed;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    background: rgba(20,20,20,0.95);
-    padding: 25px;
-    border-radius: 16px;
-    border: 3px solid #fff;
+
+    /* Glass look */
+    background: linear-gradient(
+        145deg,
+        rgba(255,255,255,0.18),
+        rgba(255,255,255,0.06)
+    );
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+
+    padding: 28px;
+    border-radius: 20px;
+
+    border: 1px solid rgba(255,255,255,0.35);
+
+    box-shadow:
+        0 20px 40px rgba(0,0,0,0.6),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+
     display: none;
     z-index: 200;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.6);
 }
 
 #inventory.visible {
@@ -172,23 +258,23 @@ button:hover {
     animation: popIn 0.2s ease forwards;
 }
 
+#inventory h2 {
+    color: white;
+    margin-bottom: 22px;
+    text-align: center;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-shadow:
+        0 2px 4px rgba(0,0,0,0.6);
+}
+
 .inv-grid {
     display: grid;
     grid-template-columns: repeat(9, 70px);
-    gap: 12px;
+    gap: 14px;
 }
 
-#health {
-    position: fixed;
-    bottom: 100px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: #ff5555;
-    font-size: 26px;
-    text-shadow: 0 0 6px rgba(0,0,0,0.7);
-    pointer-events: none;
-    font-weight: bold;
-}
+
 
 /* Optional pop-in animation for inventory */
 @keyframes popIn {
@@ -225,43 +311,9 @@ canvas {
     display: block;
 }
 
-/* ───────── MOBILE CONTROLS (GAME ONLY) ───────── */
 @media (max-width: 900px) {
 
-    #mobile-ui {
-        display: block;
-        pointer-events: none;
-    }
-
-    /* Buttons */
-    .mobile-btn {
-        position: absolute;
-        width: min(56px, 12vw);
-        height: min(56px, 12vw);
-        font-size: 18px;
-        border-radius: 50%;
-        background: rgba(0, 0, 0, 0.5);
-        border: 2px solid rgba(255, 255, 255, 0.7);
-        color: #fff;
-        pointer-events: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.5);
-        transition: transform 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
-    }
-
-    .mobile-btn:active {
-        transform: scale(0.9);
-        background: rgba(255, 255, 255, 0.15);
-        box-shadow: 0 3px 6px rgba(0, 0, 0, 0.5);
-    }
-
-    /* Positioning */
-    #jumpBtn { right: 16px; bottom: 96px; }
-    #invBtn  { right: 16px; bottom: 32px; }
-
-    /* Joystick container */
+    /* ───────── JOYSTICK ───────── */
     #joystick {
         position: absolute;
         left: 20px;
@@ -269,27 +321,80 @@ canvas {
         width: min(90px, 22vw);
         height: min(90px, 22vw);
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(4px);
+        background: rgba(255, 255, 255, 0.12);
+        backdrop-filter: blur(6px);
         pointer-events: auto;
-        box-shadow: 0 6px 14px rgba(0, 0, 0, 0.5);
-        transition: transform 0.15s ease;
+        z-index: 1000;
+        box-shadow: 0 6px 14px rgba(0,0,0,0.5);
     }
 
-    /* Movable stick */
     #stick {
         position: absolute;
         left: 50%;
         top: 50%;
-        transform: translate(-50%, -50%);
         width: 36px;
         height: 36px;
         border-radius: 50%;
-        background: rgba(255, 255, 255, 0.8);
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
-        transition: transform 0.1s ease;
+        background: rgba(255,255,255,0.85);
+        transform: translate(-50%, -50%);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.4);
+        pointer-events: none;
+        will-change: transform;
     }
+
+    /* ───────── GLASS BUTTONS ───────── */
+    .mobile-btn {
+        position: absolute;
+        width: min(64px, 14vw);
+        height: min(64px, 14vw);
+        border-radius: 18px;
+        pointer-events: auto;
+
+        background: linear-gradient(
+            145deg,
+            rgba(255,255,255,0.18),
+            rgba(255,255,255,0.05)
+        );
+
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255,255,255,0.35);
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        box-shadow:
+            0 8px 20px rgba(0,0,0,0.45),
+            inset 0 1px 0 rgba(255,255,255,0.25);
+
+    }
+
+
+.mobile-btn svg {
+    display: block;
+    flex: 0 0 auto;     /* ← CRITICAL */
+    width: 28px;
+    height: 28px;
+    min-width: 28px;   /* ← CRITICAL */
+    min-height: 28px;
+
+    fill: none;
+    stroke: white;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+
+    pointer-events: none;
+    filter: drop-shadow(0 2px 3px rgba(0,0,0,0.6));
 }
+
+
+    /* Button positions */
+    #jumpBtn { right: 20px; bottom: 110px; }
+    #invBtn  { right: 20px; bottom: 32px; }
+}
+
+
 
 /* ───────── HUD ───────── */
 #hud {
@@ -301,46 +406,228 @@ canvas {
     gap: 8px;
     z-index: 10;
 }
-
 #hud .slot {
     width: 50px;
     height: 50px;
-    background: rgba(0, 0, 0, 0.5);
-    border: 2px solid #777;
-    border-radius: 10px;
+
+    background: linear-gradient(
+        145deg,
+        rgba(255,255,255,0.18),
+        rgba(255,255,255,0.05)
+    );
+
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    border: 1px solid rgba(255,255,255,0.35);
+    border-radius: 14px;
+
     display: flex;
     align-items: center;
     justify-content: center;
+
     color: #fff;
     font-size: 12px;
-    text-align: center;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-    transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+
+    box-shadow:
+        0 8px 20px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255,255,255,0.25);
+
+    transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease;
 }
 
-#hud .slot:hover {
-    transform: scale(1.1);
-    border-color: #fff;
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 6px 16px rgba(0,0,0,0.5);
+#hud .slot.selected {
+    border-color: rgba(21, 255, 0, 0.9);
+
+    background: linear-gradient(
+        145deg,
+        rgba(0, 255, 64, 0.28),
+        rgba(0, 255, 42, 0.12)
+    );
+
+    box-shadow:
+        0 0 14px rgba(0, 255, 0, 0.85),
+        inset 0 0 6px rgba(0, 255, 13, 0.6);
+
+    transform: translateY(-6px) scale(1.1);
+}
+
+
+/* Optional animated pulse */
+@keyframes slotPulse {
+    0%   { box-shadow: 0 0 8px rgba(0, 255, 64, 0.6); }
+    50%  { box-shadow: 0 0 16px rgb(0, 255, 13); }
+    100% { box-shadow: 0 0 8px rgba(0, 255, 21, 0.6); }
+}
+
+#hud .slot.selected {
+    animation: slotPulse 1.4s infinite;
+}
+.option {
+    margin-bottom: 20px;
+    color: #ddd;
+    font-size: 1rem;
+}
+
+.option label {
+    display: block;
+    margin-bottom: 6px;
+    text-align: left;
+}
+
+select {
+    width: 320px;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    background: #333;
+    color: #fff;
+    font-size: 1rem;
+    outline: none;
+    box-shadow: inset 0 4px 6px rgba(0,0,0,0.4);
+}
+
+select:focus {
+    background: #444;
+}
+
+.option.checkbox label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.option.checkbox input {
+    width: 18px;
+    height: 18px;
+    accent-color: #6cf;
+}
+#fps {
+    position: fixed;
+    top: 10px;
+    right: 10px;
+    color: #00ff88;
+    font-size: 14px;
+    font-family: monospace;
+    text-shadow: 1px 1px 4px rgba(0,0,0,0.7);
+    pointer-events: none;
+    z-index: 100;
+}
+#loading-screen {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #0f0f0f, #1c1c1c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001;
+    color: white;
+    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+.hidden-ui {
+    display: none !important;
+}
+
+.loading-bar {
+    width: 320px;
+    height: 18px;
+    background: #333;
+    border-radius: 999px;
+    overflow: hidden;
+    margin: 20px 0 10px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
+}
+
+.loading-fill {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #6cf, #39f);
+    transition: width 0.2s ease;
+}
+
+#loading-text {
+    margin-top: 10px;
+    color: #ccc;
+}
+
+#loading-percent {
+    font-family: monospace;
+    margin-top: 6px;
+    color: #9df;
 }
 
     </style>
+
 </head>
 <body>
 
-    <div id="start-screen">
-        <div class="menu-box">
-            <h1>BlockCraft</h1>
-            <input type="text" id="seed" placeholder="Enter Seed (e.g. 12345)">
-            <button onclick="startGame()">Create World</button>
+<div id="start-screen">
+    <div class="menu-box">
+        <h1>BlockWorld</h1>
+
+        <input type="text" id="seed" placeholder="Enter Seed (optional)">
+
+        <div class="option">
+            <label for="worldSize">World Size</label>
+            <select id="worldSize">
+                <option value="30">Small</option>
+                <option value="99" selected>Medium</option>
+                <option value="160">Large</option>
+            </select>
         </div>
+
+        <div class="option">
+            <label for="worldType">World Type</label>
+            <select id="worldType">
+                <option value="normal" selected>Normal</option>
+                <option value="flat">Flat</option>
+            </select>
+        </div>
+
+        <div class="option checkbox">
+            <label class="toggle">
+                <input type="checkbox" id="floatingIslands">
+                <span class="slider"></span>
+                <span class="toggle-label">Floating Islands</span>
+            </label>
+        </div>
+<div class="option checkbox">
+            <label class="toggle">
+                <input type="checkbox" id="shadowsOn"> 
+                <span class="slider"></span>
+                <span class="toggle-label">Enable Shadows (Warning: Lag!)</span>
+            </label>
+        </div>
+        <button onclick="startGame()">Create World</button>
+    </div>
+</div> <!-- ✅ THIS WAS MISSING -->
+
+
+    
+<div id="loading-screen" style="display:none;">
+    <div class="menu-box">
+        <h1>Creating World</h1>
+        <p id="loading-text">Preparing terrain...</p>
+
+        <div class="loading-bar">
+            <div class="loading-fill" id="loading-fill"></div>
+        </div>
+
+        <p id="loading-percent">0%</p>
+    </div>
     </div>
 
+    <div id="game-ui" class="hidden-ui">
     <div id="crosshair">+</div>
     <div id="info"></div>
-    <div id="health">❤❤❤❤❤❤❤❤❤❤</div>
+    <div id="fps"></div>
     <div id="hud"></div>
+
     
     <div id="inventory">
         <h2 style="color:white; margin-bottom: 20px; text-align: center;">Inventory</h2>
@@ -353,8 +640,13 @@ canvas {
         <div id="stick"></div>
     </div>
 
-    <button id="jumpBtn" class="mobile-btn">⬆</button>
-    <button id="invBtn" class="mobile-btn">🎒</button>
+<button id="jumpBtn" class="mobile-btn">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+</button>
+
+
     <script>
         let gameStarted = false;
 const VIEW_DISTANCE = 30;
@@ -362,21 +654,110 @@ let lastCellX = Infinity;
 let lastCellZ = Infinity;
 const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
 const Noise = (function() { let p = new Uint8Array(512); let permutation = [151,160,137,91,90,15,131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,190,6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,88,237,149,56,87,174,20,125,136,171,168,68,175,74,165,71,134,139,48,27,166,77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,102,143,54,65,25,63,161,1,216,80,73,209,76,132,187,208,89,18,169,200,196,135,130,116,188,159,86,164,100,109,198,173,186,3,64,52,217,226,250,124,123,5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,223,183,170,213,119,248,152,2,44,154,163,70,221,153,101,155,167,43,172,9,129,22,39,253,19,98,108,110,79,113,224,232,178,185,112,104,218,246,97,228,251,34,242,193,238,210,144,12,191,179,162,241,81,51,145,235,249,14,239,107,49,192,214,31,181,199,106,157,184,84,204,176,115,121,50,45,127,4,150,254,138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180]; for (let i=0; i < 256 ; i++) p[256+i] = p[i] = permutation[i]; function fade(t) { return t * t * t * (t * (t * 6 - 15) + 10); } function lerp(t, a, b) { return a + t * (b - a); } function grad(hash, x, y, z) { let h = hash & 15; let u = h<8 ? x : y, v = h<4 ? y : h==12||h==14 ? x : z; return ((h&1) == 0 ? u : -u) + ((h&2) == 0 ? v : -v); } return { perlin: function (x, y, z) { let X = Math.floor(x) & 255, Y = Math.floor(y) & 255, Z = Math.floor(z) & 255; x -= Math.floor(x); y -= Math.floor(y); z -= Math.floor(z); let u = fade(x), v = fade(y), w = fade(z); let A = p[X]+Y, AA = p[A]+Z, AB = p[A+1]+Z, B = p[X+1]+Y, BA = p[B]+Z, BB = p[B+1]+Z; return lerp(w, lerp(v, lerp(u, grad(p[AA], x, y, z), grad(p[BA], x-1, y, z)), lerp(u, grad(p[AB], x, y-1, z), grad(p[BB], x-1, y-1, z))), lerp(v, lerp(u, grad(p[AA+1], x, y, z-1), grad(p[BA+1], x-1, y, z-1)), lerp(u, grad(p[AB+1], x, y-1, z-1), grad(p[BB+1], x-1, y-1, z-1)))); } }; })();
+let fpsFrames = 0;
+let fpsLastTime = performance.now();
+let fpsValue = 0;
 
         // --- SETUP ---
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x87CEEB);
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.1, 1000);
-        const renderer = new THREE.WebGLRenderer({ antialias: false });
+        const renderer = new THREE.WebGLRenderer({ antialias: true});
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap; // Makes shadows look smoother
+const sun = new THREE.DirectionalLight(0xffffff, 1.0); // Slightly brighter for contrast
+sun.position.set(50, 80, 50);
+sun.castShadow = true;
+
+// Configure Shadow Properties
+sun.shadow.mapSize.width = 1024; 
+sun.shadow.mapSize.height = 1024;
+sun.shadow.bias = -0.0005; // Removes "shadow acne" (weird stripes)
+
+// Set the shadow camera area (must cover View Distance)
+const d = 50; 
+sun.shadow.camera.left = -d;
+sun.shadow.camera.right = d;
+sun.shadow.camera.top = d;
+sun.shadow.camera.bottom = -d;
+sun.shadow.camera.near = 0.1;
+sun.shadow.camera.far = 200;
+
+scene.add(sun);
+scene.add(sun.target); // Important for moving the light later
         document.body.appendChild(renderer.domElement);
         const canvas = renderer.domElement;
+function fakeLoading(onDone) {
+    let progress = 0;
+    const fill = document.getElementById('loading-fill');
+    const percent = document.getElementById('loading-percent');
+    const text = document.getElementById('loading-text');
 
+    const steps = [
+        "Preparing terrain...",
+        "Generating chunks...",
+        "Placing blocks...",
+        "Growing trees...",
+        "Finalizing world..."
+    ];
+
+    const interval = setInterval(() => {
+        // Increase progress faster
+        progress += Math.random() * 20 + 10; // bigger jump
+        progress = Math.min(progress, 100);
+
+        fill.style.width = progress + '%';
+        percent.textContent = Math.floor(progress) + '%';
+        text.textContent = steps[Math.min(
+            steps.length - 1,
+            Math.floor(progress / 20)
+        )];
+
+        if (progress >= 100) {
+            clearInterval(interval);
+            setTimeout(onDone, 200); // shorter final delay
+        }
+    }, 80); // shorter interval
+}
+
+
+// --- HAND GROUP ---
 const handGroup = new THREE.Group();
 camera.add(handGroup);
 scene.add(camera);
-const handGeo = new THREE.BoxGeometry(0.2, 0.4, 0.2);
+
+// Hand mesh
+const handGeo = new THREE.BoxGeometry(0.15, 0.4, 0.15);
 const handMat = new THREE.MeshLambertMaterial({ color: 0xE0C097 });
 const handMesh = new THREE.Mesh(handGeo, handMat);
+handMesh.position.set(0.35, -0.45, -0.6);
+handMesh.rotation.set(
+    THREE.MathUtils.degToRad(80),  // Rotate 80° on X to point forward
+    0,
+    0
+);
+handGroup.add(handMesh);
+
+const handBasePos = handMesh.position.clone();
+const handBaseRot = handMesh.rotation.clone();
+
+// Block holder
+let heldBlockMesh = null;
+// Highlight mesh
+let highlightMesh = new THREE.Mesh(
+    new THREE.BoxGeometry(1.0005, 1.0005, 1.0005), // slightly bigger to avoid z-fighting
+    new THREE.MeshBasicMaterial({
+        color: 0xffffff,    // white
+        transparent: true,
+        opacity: 0.2,       // semi-glow
+    })
+);
+highlightMesh.visible = false;
+scene.add(highlightMesh);
+
+// Optional: add subtle bloom effect later if you want extra glow
+
+
 function resize() {
     const w = window.innerWidth;
     const h = window.innerHeight;
@@ -389,21 +770,11 @@ function resize() {
 window.addEventListener('resize', resize);
 resize();
 
-// Position (right side, slightly up)
-handMesh.position.set(0.45, -0.35, -0.8);
-
-// Rotation: 45° left, 45° up
-handMesh.rotation.set(
-    THREE.MathUtils.degToRad(-45), // up
-    THREE.MathUtils.degToRad(-45), // left
-    0
-);
-
 handGroup.add(handMesh);
 
         // --- UI RENDERER (Cached) ---
         const uiRenderer = new THREE.WebGLRenderer({ alpha: true });
-        uiRenderer.setSize(64, 64);
+        uiRenderer.setSize(64,64);
         const uiScene = new THREE.Scene();
         const uiCam = new THREE.PerspectiveCamera(45, 1, 0.1, 10);
         uiCam.position.set(1.5, 1.5, 1.5);
@@ -413,38 +784,136 @@ handGroup.add(handMesh);
         // --- LIGHTING ---
         const ambient = new THREE.AmbientLight(0xC2C2C2, 0.6);
         scene.add(ambient);
-        const sun = new THREE.DirectionalLight(0xC2C2C2, 0.8);
-        sun.position.set(50, 100, 50);
-        scene.add(sun);
-
+        
         // --- MATERIALS ---
         const loader = new THREE.TextureLoader();
-        // Use 0xC2C2C2 (White) so original textures are not tinted/colored
-        function createMat(url) {
-            const t = loader.load(url, tex => {
+function createMat(url, color = 0xC2C2C2, alphaTest = 0) {
+    const t = loader.load(url, tex => {
+        tex.magFilter = THREE.NearestFilter;
+        tex.minFilter = THREE.NearestFilter;
+    });
+
+    return new THREE.MeshLambertMaterial({
+        map: t,
+        color: color,
+        alphaTest: alphaTest,
+        side: THREE.DoubleSide
+    });
+}
+
+
+const materials = {
+    grassTop: new THREE.MeshLambertMaterial({ color: 0x68BD59 }),
+    grassSide: new THREE.MeshLambertMaterial(),
+    dirt: new THREE.MeshLambertMaterial(),
+    stone: new THREE.MeshLambertMaterial(),
+    woodSide: new THREE.MeshLambertMaterial(),
+    woodTop: new THREE.MeshLambertMaterial(),
+    leaves: new THREE.MeshLambertMaterial({ transparent: true, opacity: 0.9 }),
+    bedrock: new THREE.MeshLambertMaterial(),
+    cobblestone: new THREE.MeshLambertMaterial(),
+    planks: new THREE.MeshLambertMaterial()
+};
+const blockMaterialMap = {
+    grass: [
+        materials.grassSide, materials.grassSide,
+        materials.grassTop,  materials.dirt,
+        materials.grassSide, materials.grassSide
+    ],
+    wood: [
+        materials.woodSide, materials.woodSide,
+        materials.woodTop,  materials.woodTop,
+        materials.woodSide, materials.woodSide
+    ],
+    stone: materials.stone,
+    dirt: materials.dirt,
+    leaves: materials.leaves,
+    bedrock: materials.bedrock,
+    cobblestone: materials.cobblestone,
+    planks: materials.planks
+};
+
+        const loadedTextures = {};
+function loadTexture(url) {
+    return new Promise(resolve => {
+        const tex = new THREE.TextureLoader().load(url, t => {
+            t.magFilter = THREE.NearestFilter;
+            t.minFilter = THREE.NearestFilter;
+            resolve(t);
+        });
+    });
+}
+
+async function preloadMaterials() {
+    const loader = new THREE.TextureLoader();
+    const promises = [];
+    for (let key in materials) {
+        promises.push(new Promise(resolve => {
+            loader.load(`textures/${key.replace(/([A-Z])/g, '_$1').toLowerCase()}.png`, tex => {
                 tex.magFilter = THREE.NearestFilter;
                 tex.minFilter = THREE.NearestFilter;
+                materials[key].map = tex;
+                resolve();
             });
-            return new THREE.MeshLambertMaterial({ map: t, color: 0xC2C2C2});
-        }
-        
-        const materials = {
-            grass: createMat('textures/grassblock.png'),
-            dirt: createMat('textures/dirt.png'), // Fallback if you have it, else re-use stone
-            stone: createMat('textures/stone.png'),
-            wood: createMat('textures/wood.png'),
-            leaves: createMat('textures/leaves.png'),
-            bedrock: createMat('textures/bedrock.png')
-        };
-        // Reuse stone for dirt if no dirt texture
-        if(!materials.dirt.map) materials.dirt = materials.stone;
+        }));
+    }
+    await Promise.all(promises);
+}
 
-        const blockGeo = new THREE.BoxGeometry(1, 1, 1);
+const blockGeo = new THREE.BoxGeometry(1, 1, 1);
         blockGeo.translate(0.5, 0.5, 0.5); 
+function createBlockMesh(type, x, y, z) {
+    // choose material OR per-face array (use blockMaterialMap first)
+    let mat = blockMaterialMap[type] || materials[type] || materials.stone;
+
+    const mesh = new THREE.Mesh(blockGeo, mat);
+
+    // set correct world position! (this was missing)
+    mesh.position.set(x, y, z);
+
+    // shadow choices — avoid huge shadow cost for low-value blocks
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+
+    mesh.userData = { type, x, y, z };
+    return mesh;
+}
+
+        
 
         // --- WORLD DATA (Separated from Visuals) ---
         const worldData = {}; // key: "x,y,z" -> val: type
-        const worldMeshes = new Map(); // key: "x,y,z" -> val: THREE.Mesh
+        const surfaceHeight = {};
+
+        // --- NEW INSTANCING SYSTEM ---
+const MAX_INSTANCES = 10000; // Max blocks of ONE type visible at once
+const instancedMeshes = {}; // Stores the "Managers"
+const dummy = new THREE.Object3D(); // Helper to calculate positions
+
+function initInstancedMeshes() {
+    for (const key in instancedMeshes) {
+        scene.remove(instancedMeshes[key]);
+    }
+
+    // Define all block types you want to support
+    const types = ['grass', 'dirt', 'stone', 'wood', 'leaves', 'cobblestone', 'planks', 'bedrock'];
+
+    types.forEach(type => {
+        let mat = blockMaterialMap[type] || materials[type] || materials.stone;
+        
+        // We MUST use the same geometry for every manager
+        const mesh = new THREE.InstancedMesh(blockGeo, mat, MAX_INSTANCES);
+        
+        mesh.castShadow = (type !== 'leaves');
+        mesh.receiveShadow = true;
+        mesh.count = 0; 
+
+        scene.add(mesh);
+        instancedMeshes[type] = mesh;
+    });
+}
+
+
 // --- SOUNDS ---
 const sounds = {
     walk: [
@@ -512,58 +981,118 @@ function playSound(name) {
             if (!getBlockType(x, y, z-1)) return false;
             return true;
         }
-let heldBlockMesh = null;
 renderer.domElement.style.touchAction = 'none';
 
 function updateHeldItem() {
-    // Remove old block
+    handMesh.visible = true;
+
     if (heldBlockMesh) {
-        handGroup.remove(heldBlockMesh);
+        handMesh.remove(heldBlockMesh);
         heldBlockMesh = null;
     }
 
-    const item = hotbar[selectedSlot];
-
-    // Show hand if empty
-    handMesh.visible = !item;
-    if (!item) return;
-
-    // Create block
-    heldBlockMesh = new THREE.Mesh(blockGeo, materials[item]);
-    heldBlockMesh.scale.set(0.4, 0.4, 0.4);
-    heldBlockMesh.position.set(0.5, -0.5, -1);
-
-    handGroup.add(heldBlockMesh);
-}
-
-        function renderWorld() {
-    worldMeshes.forEach(m => scene.remove(m));
-    worldMeshes.clear();
-
-    for (let key in worldData) {
-        const [x, y, z] = key.split(',').map(Number);
-
-        // distance culling ONLY here
-        const dx = x - player.x;
-        const dy = y - player.y;
-        const dz = z - player.z;
-        if (dx*dx + dy*dy + dz*dz > VIEW_DISTANCE*VIEW_DISTANCE) continue;
-
-        if (isBlockObscured(x, y, z)) continue;
-
-        const type = worldData[key];
-        const mesh = new THREE.Mesh(blockGeo, materials[type]);
-        mesh.position.set(x, y, z);
-        mesh.userData = { type, x, y, z };
-        scene.add(mesh);
-        worldMeshes.set(key, mesh);
+    const blockType = hotbar[selectedSlot];
+    if (blockType) {
+        // Use blockMaterialMap so grass/wood show correct faces in the icon/held mesh
+        const mat = blockMaterialMap[blockType] || materials[blockType] || materials.stone;
+        heldBlockMesh = new THREE.Mesh(blockGeo, mat);
+        heldBlockMesh.scale.set(0.45, 0.45, 0.45);
+        handMesh.add(heldBlockMesh);
+        heldBlockMesh.position.set(-0.1, -1, -0.5);
+        heldBlockMesh.rotation.set(0, 0, 0);
     }
 }
+function renderWorld() {
+    // 1. Reset counts
+    for (const key in instancedMeshes) {
+        instancedMeshes[key].count = 0;
+    }
+
+    const px = Math.round(player.x);
+    const pz = Math.round(player.z);
+    const d = VIEW_DISTANCE;
+
+    // 2. Optimized Triple Loop
+    for (let x = px - d; x <= px + d; x++) {
+        for (let z = pz - d; z <= pz + d; z++) {
+            
+            // Check distance once per column (faster)
+            const dx = x - player.x;
+            const dz = z - player.z;
+            if (dx * dx + dz * dz > d * d) continue;
+
+            for (let y = 0; y < 60; y++) {
+                const type = getBlockType(x, y, z);
+                if (!type) continue;
+
+                // Simple Occlusion Culling
+                if (isBlockObscured(x, y, z)) continue;
+
+                const mesh = instancedMeshes[type];
+                
+                // Safety: Check if mesh exists and we haven't hit the limit
+                if (mesh && mesh.count < MAX_INSTANCES) {
+                    dummy.position.set(x, y, z);
+                    dummy.updateMatrix();
+                    mesh.setMatrixAt(mesh.count, dummy.matrix);
+                    mesh.count++;
+                }
+            }
+        }
+    }
+
+    // 3. Update GPU (The most important part!)
+    for (const key in instancedMeshes) {
+        instancedMeshes[key].instanceMatrix.needsUpdate = true;
+    }
+}
+function findSpawnPosition() {
+    let bestDistSq = Infinity;
+    let spawnX = 0;
+    let spawnY = 0;
+    let spawnZ = 0;
+
+    for (let x = -8; x <= 8; x++) {
+        for (let z = -8; z <= 8; z++) {
+
+            const distSq = x * x + z * z;
+            if (distSq >= bestDistSq) continue;
+
+            for (let y = 100; y >= 0; y--) {
+                if (getBlockType(x, y, z) !== 'grass') continue;
+
+                const above1 = getBlockType(x, y + 1, z);
+                const above2 = getBlockType(x, y + 2, z);
+
+                // Air = no block returned
+                if (above1 || above2) continue;
+
+                bestDistSq = distSq;
+                spawnX = x + 0.5;
+                spawnY = y;
+                spawnZ = z + 0.5;
+                break;
+            }
+        }
+    }
+
+    if (bestDistSq === Infinity) {
+        return { x: 0.5, y: 5, z: 0.5 };
+    }
+
+    return {
+        x: spawnX,
+        y: spawnY , // feet on grass
+        z: spawnZ
+    };
+}
+
+function generateStuff() {
+    const worldSize = parseInt(document.getElementById('worldSize').value);
+const floatingIslands = document.getElementById('floatingIslands').checked;
+const worldType = document.getElementById('worldType').value;
 
 
-
-        // --- GENERATION ---
-        function startGame() {
             if (IS_MOBILE) {
     document.getElementById('mobile-ui').style.display = 'block';
 
@@ -576,66 +1105,142 @@ function updateHeldItem() {
             const input = document.getElementById('seed').value;
             // Simple hash for seed
             const seed = input ? parseInt(input.split('').reduce((a,b)=>a+b.charCodeAt(0),0)) : Math.floor(Math.random()*10000);
-            gameStarted = true;
-            document.getElementById('start-screen').style.display = 'none';
+
             
             // 1. Generate Data First
-            const size = 99; // Radius
+            const size = worldSize;
+
             for(let x = -size; x <= size; x++) {
                 for(let z = -size; z <= size; z++) {
                     // Use Perlin Noise for smooth terrain
-                    let noiseVal = Noise.perlin(x * 0.1 + seed, 0, z * 0.1 + seed);
-                    let h = Math.floor(5 + Math.abs(noiseVal) * 10); 
+                    let h;
+
+// ───────── FLAT WORLD ─────────
+if (worldType === 'flat') {
+    h = 4; // flat grass level
+}
+
+// ───────── NORMAL WORLD ─────────
+else {
+    let noiseVal = Noise.perlin(x * 0.1 + seed, 0, z * 0.1 + seed);
+
+    if (floatingIslands) {
+        const islandNoise = Noise.perlin(x * 0.08 + seed, 50, z * 0.08 + seed);
+        if (islandNoise > 0.15) {
+            h = Math.floor(20 + islandNoise * 15);
+        } else {
+            continue; // air
+        }
+    } else {
+        h = Math.floor(5 + Math.abs(noiseVal) * 10);
+    }
+}
+
+
                     
                     setBlockData(x, 0, z, 'bedrock');
                     for(let y = 1; y < h-2; y++) setBlockData(x, y, z, 'stone');
                     setBlockData(x, h-2, z, 'dirt');
                     setBlockData(x, h-1, z, 'dirt');
                     setBlockData(x, h, z, 'grass');
+surfaceHeight[`${x},${z}`] = h;
 
-                   // Minecraft-style oak trees
-if (
-    getBlockType(x, h, z) === 'grass' &&
-    Noise.perlin(x * 0.15 + seed, 100, z * 0.15 + seed) > 0.55
-) {
-    const trunkHeight = 4 + Math.floor(Math.random() * 2);
+                }
+            }
+// ───────── TREE GENERATION (SECOND PASS) ─────────
 
-    // Trunk
-    for (let t = 1; t <= trunkHeight; t++) {
-        setBlockData(x, h + t, z, 'wood');
-    }
+// deterministic random
+function rand2D(x, z, seed) {
+    const n = Math.sin(
+        x * 127.1 +
+        z * 311.7 +
+        seed * 74.7
+    ) * 43758.5453123;
+    return n - Math.floor(n);
+}
 
-    // Leaves blob
-    const topY = h + trunkHeight;
-    for (let ly = -2; ly <= 2; ly++) {
-        for (let lx = -2; lx <= 2; lx++) {
-            for (let lz = -2; lz <= 2; lz++) {
-                const dist = Math.abs(lx) + Math.abs(lz) + Math.abs(ly);
-                if (dist <= 3 && !(lx === 0 && lz === 0 && ly < 1)) {
-                    if (!getBlockType(x + lx, topY + ly, z + lz)) {
-                        setBlockData(x + lx, topY + ly, z + lz, 'leaves');
-                    }
+for (let x = -size; x <= size; x++) {
+    for (let z = -size; z <= size; z++) {
+
+        const h = surfaceHeight[`${x},${z}`];
+        if (h === undefined) continue;
+        if (getBlockType(x, h, z) !== 'grass') continue;
+
+        // VERY RARE chance (controls density)
+        if (rand2D(x, z, seed) < 0.99) continue;
+
+        // spacing: no trees within 4 blocks
+        let blocked = false;
+        for (let dx = -2; dx <= 2 && !blocked; dx++) {
+            for (let dz = -2; dz <= 2; dz++) {
+                if (getBlockType(x + dx, h + 1, z + dz) === 'wood') {
+                    blocked = true;
+                    break;
+                }
+            }
+        }
+        if (blocked) continue;
+
+        const trunkHeight =
+            4 + Math.floor(rand2D(x + 5, z + 9, seed) * 2);
+
+        // trunk (wood)
+        for (let t = 1; t <= trunkHeight; t++) {
+            setBlockData(x, h + t, z, 'wood');
+        }
+
+        // leaves (Minecraft style)
+        const topY = h + trunkHeight;
+
+        // Layer 1 (top)
+        setBlockData(x, topY + 2, z, 'leaves');
+
+        // Layer 2 (middle) – center stays as trunk
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dz = -1; dz <= 1; dz++) {
+                if (dx !== 0 || dz !== 0) { // center is trunk
+                    setBlockData(x + dx, topY + 1, z + dz, 'leaves');
+                }
+            }
+        }
+
+        // Layer 3 (bottom) – center stays as trunk
+        for (let dx = -2; dx <= 2; dx++) {
+            for (let dz = -2; dz <= 2; dz++) {
+                if (Math.abs(dx) + Math.abs(dz) <= 2 && (dx !== 0 || dz !== 0)) {
+                    setBlockData(x + dx, topY, z + dz, 'leaves');
                 }
             }
         }
     }
 }
 
-                }
-            }
 
-            // 2. Render only visible blocks
-            renderWorld();
+            // Inside startGame, after generating terrain:
+const spawn = findSpawnPosition();
+player.x = spawn.x;
+player.z = spawn.z;
+player.y = spawn.y + 5; // Spawn 5 blocks ABOVE the ground
+player.vy = 0;
+renderWorld(); // Initial render
 
             updateHotbar();
             updateInfo();
-            animate();
             updateHeldItem();
 
         }
 
         // --- PLAYER ---
-        const player = { x: 0.5, y: 20, z: 0.5, vy: 0, yaw: 0, pitch: 0, onGround: false, flying: false };
+        const player = {
+    x: 0.5,
+    y: 30,
+    z: 0.5,
+    vy: 0,
+    yaw: 0,
+    pitch: 0,
+    onGround: false,
+};
+
         const keys = {};
         const PLAYER_HEIGHT = 1.6;
         const PLAYER_RADIUS = 0.25;
@@ -644,158 +1249,229 @@ if (
         let selectedSlot = 0;
         let inventoryOpen = false;
         let mouseLocked = false;
-        const hotbar = ['grass', 'stone', 'wood', 'leaves', 'dirt', 'bedrock', null, null, null];
-        const allItems = ['grass', 'dirt', 'stone', 'wood', 'leaves', 'bedrock'];
+        const hotbar = ['grass', 'stone', 'wood', 'leaves', 'dirt', 'cobblestone', 'planks', 'bedrock', null];
+        const allItems = ['grass', 'dirt', 'stone', 'wood', 'leaves', 'cobblestone', 'planks', 'bedrock'];
 
-        // --- PHYSICS & COLLISION ---
-        function checkCollision(x, y, z) {
-            const feetY = y - PLAYER_HEIGHT + 0.1;
-            const headY = y - 0.1;
-            const box = [
-                {x: x-PLAYER_RADIUS, z: z-PLAYER_RADIUS},
-                {x: x+PLAYER_RADIUS, z: z-PLAYER_RADIUS},
-                {x: x-PLAYER_RADIUS, z: z+PLAYER_RADIUS},
-                {x: x+PLAYER_RADIUS, z: z+PLAYER_RADIUS}
-            ];
-            for(let p of box) {
-                if(getBlockType(Math.floor(p.x), Math.floor(feetY), Math.floor(p.z))) return true;
-                if(getBlockType(Math.floor(p.x), Math.floor(headY), Math.floor(p.z))) return true;
-            }
-            return false;
-        }
+function checkCollision(x, y, z) {
+    const feetY = y - PLAYER_HEIGHT + 0.2; // Lifted slightly to avoid floor-snag
+    const headY = y - 0.2;
+    
+    // Shrink the player radius slightly for smoother movement
+    const r = PLAYER_RADIUS * 0.8; 
 
-        function updatePlayer(dt) {
-    const walkSpeed = player.flying ? 15 : 4;
+    const points = [
+        {x: x - r, z: z - r},
+        {x: x + r, z: z - r},
+        {x: x - r, z: z + r},
+        {x: x + r, z: z + r}
+    ];
+
+    for (let p of points) {
+        // Use Math.floor to check the exact block coordinates in worldData
+        if (getBlockType(Math.floor(p.x), Math.floor(feetY), Math.floor(p.z))) return true;
+        if (getBlockType(Math.floor(p.x), Math.floor(headY), Math.floor(p.z))) return true;
+        
+        // Add a check for the middle of the body
+        const midY = (feetY + headY) / 2;
+        if (getBlockType(Math.floor(p.x), Math.floor(midY), Math.floor(p.z))) return true;
+    }
+    return false;
+}
+
+function updatePlayer(dt) {
+    const delta = Math.min(dt, 0.05);
+    const walkSpeed = 4;
     const gravity = 30;
     const jumpForce = 10;
-    const groundProbe = 0.05;
 
-    // ───────────────
-    // Horizontal movement
-    // ───────────────
     let dx = 0, dz = 0;
+    let moved = false;
 
-    if (keys['w']) { dx -= Math.sin(player.yaw); dz -= Math.cos(player.yaw); }
-    if (keys['s']) { dx += Math.sin(player.yaw); dz += Math.cos(player.yaw); }
-    if (keys['a']) { dx -= Math.cos(player.yaw); dz += Math.sin(player.yaw); }
-    if (keys['d']) { dx += Math.cos(player.yaw); dz -= Math.sin(player.yaw); }
+    // --- 1. INPUT DETECTION LOGS ---
+    if (keys['w']) { dx -= Math.sin(player.yaw); dz -= Math.cos(player.yaw); moved = true; }
+    if (keys['s']) { dx += Math.sin(player.yaw); dz += Math.cos(player.yaw); moved = true; }
+    if (keys['a']) { dx -= Math.cos(player.yaw); dz += Math.sin(player.yaw); moved = true; }
+    if (keys['d']) { dx += Math.cos(player.yaw); dz -= Math.sin(player.yaw); moved = true; }
 
-    if (!checkCollision(player.x + dx * walkSpeed * dt, player.y, player.z)) {
-        player.x += dx * walkSpeed * dt;
+    if (moved) console.log("Movement detected: ", {dx, dz});
+    if (keys[' ']) console.log("Jump key pressed! Player onGround:", player.onGround);
+
+    // --- 2. MOVEMENT LOGIC ---
+    const inputLen = Math.sqrt(dx * dx + dz * dz);
+    if (inputLen > 0) {
+        dx /= inputLen;
+        dz /= inputLen;
     }
 
-    if (!checkCollision(player.x, player.y, player.z + dz * walkSpeed * dt)) {
-        player.z += dz * walkSpeed * dt;
+    const moveX = dx * walkSpeed * delta;
+    const moveZ = dz * walkSpeed * delta;
+
+    // Check X
+    if (!checkCollision(player.x + moveX, player.y, player.z)) {
+        player.x += moveX;
+    } else if (moved) {
+        console.warn("X collision blocked movement");
     }
 
-    // ───────────────
-    // Flying mode
-    // ───────────────
-    if (player.flying) {
-        if (keys[' ']) player.y += walkSpeed * dt;
-        if (keys['shift']) player.y -= walkSpeed * dt;
-        player.vy = 0;
-        player.onGround = false;
-    } 
-    else {
-        // ───────────────
-        // Ground check (small downward probe)
-        // ───────────────
-        const onGround = checkCollision(
-    player.x,
-    player.y - groundProbe,
-    player.z
-);
+    // Check Z
+    if (!checkCollision(player.x, player.y, player.z + moveZ)) {
+        player.z += moveZ;
+    } else if (moved) {
+        console.warn("Z collision blocked movement");
+    }
 
+    // --- 3. JUMP & GRAVITY ---
+    const onGround = checkCollision(player.x, player.y - 0.1, player.z);
+    player.onGround = onGround;
 
-        player.onGround = onGround;
-
-        // ───────────────
-        // Jump
-        // ───────────────
-        if (keys[' '] && player.onGround) {
+    if (onGround) {
+        player.vy = Math.max(player.vy, 0);
+        if (keys[' ']) {
             player.vy = jumpForce;
             player.onGround = false;
         }
-
-        // ───────────────
-        // Gravity
-        // ───────────────
-        if (!player.onGround) {
-            player.vy -= gravity * dt;
-        } else {
-            player.vy = Math.max(player.vy, 0);
-        }
-// Walking sound
-if (
-    player.onGround &&
-    !player.flying &&
-    (keys['w'] || keys['a'] || keys['s'] || keys['d'])
-) {
-    if (!player.lastStep || performance.now() - player.lastStep > 400) {
-        playWalkSound();
-        player.lastStep = performance.now();
-    }
-}
-
-        // ───────────────
-        // Vertical movement
-        // ───────────────
-        const nextY = player.y + player.vy * dt;
-
-        if (!checkCollision(player.x, nextY, player.z)) {
-            player.y = nextY;
-        } else {
-            // Hit ground or ceiling
-            if (player.vy < 0) {
-                player.onGround = true;
-            }
-            player.vy = 0;
-        }
+    } else {
+        player.vy -= gravity * delta;
     }
 
-    // ───────────────
-    // Failsafe
-    // ───────────────
-    if (player.y < -10) {
-        player.y = 30;
+    const moveY = player.vy * delta;
+    if (!checkCollision(player.x, player.y + moveY, player.z)) {
+        player.y += moveY;
+    } else {
         player.vy = 0;
     }
 
-    // ───────────────
-    // Camera
-    // ───────────────
+    // --- 4. SYNC ---
     camera.position.set(player.x, player.y, player.z);
     camera.rotation.set(player.pitch, player.yaw, 0, 'YXZ');
 }
+let swinging = false;
+let swingTime = 0;
+const SWING_DURATION = 0.35; // Minecraft swings are faster (~0.35s)
+
+function startSwing() {
+    if (!swinging) {
+        swinging = true;
+        swingTime = 0;
+    }
+}
+
+function updateSwing(dt) {
+    if (!swinging) return;
+    
+    swingTime += dt;
+    const t = Math.min(swingTime / SWING_DURATION, 1);
+    
+    // Ease-out curve for snappy feel
+    const ease = 1 - Math.pow(1 - t, 3);
+    
+    // MINECRAFT PATTERN: Forward+Up → Left+Down → Right
+    const phase1 = Math.min(ease * 2, 1);
+    const phase2 = Math.max((ease - 0.5) * 2, 0);
+    
+    const forwardUp = Math.sin(phase1 * Math.PI * 0.5);
+    const arc = Math.sin(phase2 * Math.PI);
+    
+    // Position calculation
+    handMesh.position.x = handBasePos.x - 0.5 * arc;
+    handMesh.position.y = handBasePos.y + 0.2 * forwardUp - 0.4 * phase2;
+    handMesh.position.z = handBasePos.z - 0.3 * forwardUp;
+    
+    // Block follows hand
+    if (heldBlockMesh) {
+heldBlockMesh.position.set(-0.1,-1, -0.5);
+
+    heldBlockMesh.rotation.set(0, 0, 0);    // align with hand
+    }
+    
+    // Reset when done
+    if (t >= 1) {
+        swinging = false;
+        swingTime = 0;
+        handMesh.position.copy(handBasePos);
+        if (heldBlockMesh) {
+heldBlockMesh.position.set(-0.1,-1, -0.5);
+
+    heldBlockMesh.rotation.set(0, 0, 0);    // align with hand
+        }
+    }
+}
+async function startGame() {
+    // 1. Get the checkbox value
+    const useShadows = document.getElementById('shadowsOn').checked;
+
+    // 2. Apply settings to Renderer and Sun
+    renderer.shadowMap.enabled = useShadows;
+    renderer.shadowMap.autoUpdate = useShadows;
+    sun.castShadow = useShadows;
+    await preloadMaterials();
+    initInstancedMeshes()
+    // Hide menu
+    document.getElementById('start-screen').style.display = 'none';
+
+    // Hide game UI
+    document.getElementById('game-ui').classList.add('hidden-ui');
+
+    // Show loading screen
+    const loading = document.getElementById('loading-screen');
+    loading.style.display = 'flex';
+
+    // Start fake loading FIRST
+    fakeLoading(() => {
+        // When fake loading completes
+        gameStarted = true;
+        loading.style.display = 'none';
+
+        // Show UI
+        document.getElementById('game-ui').classList.remove('hidden-ui');
+
+        lastTime = performance.now();
+        animate();
+    });
+
+    // ⚠️ Generate world AFTER browser has time to paint loading screen
+    setTimeout(() => {
+        generateStuff();
+    }, 50);
+}
+
 let lastChunkX = 9999;
 let lastChunkZ = 9999;
-
 function maybeUpdateWorld() {
-    const cellX = Math.floor(player.x / 8);
-    const cellZ = Math.floor(player.z / 8);
+    // Round player position to nearest 4th block to reduce update frequency
+    const curX = Math.floor(player.x / 4);
+    const curZ = Math.floor(player.z / 4);
 
-    if (cellX === lastCellX && cellZ === lastCellZ) return;
-
-    lastCellX = cellX;
-    lastCellZ = cellZ;
-
-    renderWorld();
+    if (curX !== lastCellX || curZ !== lastCellZ) {
+        lastCellX = curX;
+        lastCellZ = curZ;
+        renderWorld();
+    }
 }
 
         // --- UI SYSTEM ---
         const iconCache = {};
         function getIcon(type) {
-            if (!type) return '';
-            if (iconCache[type]) return iconCache[type];
-            const mesh = new THREE.Mesh(blockGeo, materials[type]);
-            uiScene.add(mesh);
-            uiRenderer.render(uiScene, uiCam);
-            const url = uiRenderer.domElement.toDataURL();
-            uiScene.remove(mesh);
-            iconCache[type] = url;
-            return url;
-        }
+    if (!type) return '';
+    if (iconCache[type]) return iconCache[type];
+
+   const mesh = new THREE.Mesh(blockGeo, blockMaterialMap[type] || materials.stone);
+
+
+    // 🔽 MAKE ICON BLOCK SMALLER
+    mesh.scale.set(0.65, 0.65, 0.65);
+    mesh.position.set(0.175, 0.175, 0.175);
+
+    uiScene.add(mesh);
+    uiRenderer.render(uiScene, uiCam);
+
+    const url = uiRenderer.domElement.toDataURL();
+    uiScene.remove(mesh);
+
+    iconCache[type] = url;
+    return url;
+}
+
 function toggleInventory() {
     inventoryOpen = !inventoryOpen;
     document.getElementById('inventory').classList.toggle('visible');
@@ -807,27 +1483,39 @@ function toggleInventory() {
 
         function updateHotbar() {
     const h = document.getElementById('hud');
-    h.innerHTML = '';
 
-    hotbar.forEach((t, i) => {
-        const s = document.createElement('div');
-        s.className = `slot ${i === selectedSlot ? 'selected' : ''}`;
-        s.dataset.slot = i;
+    // Create once
+    if (!h.hasChildNodes()) {
+        hotbar.forEach((t, i) => {
+            const s = document.createElement('div');
+            s.className = 'slot';
+            s.dataset.slot = i;
 
-        if (t) {
-            s.innerHTML = `<img src="${getIcon(t)}"><span class="slot-count">∞</span>`;
-        }
+            if (t) {
+                s.innerHTML = `<img src="${getIcon(t)}"><span class="slot-count">∞</span>`;
+            }
 
-        if (IS_MOBILE) {
-            s.addEventListener('touchstart', e => {
-                e.preventDefault();
-                selectedSlot = i;
-                updateHotbar();
-                updateHeldItem();
-            });
-        }
+            if (IS_MOBILE) {
+                s.addEventListener('touchstart', e => {
+                    e.preventDefault();
+                    selectedSlot = i;
+                    updateHotbar();
+                    updateHeldItem();
+                });
+            }
 
-        h.appendChild(s);
+            h.appendChild(s);
+        });
+    }
+
+    // Update selection + content
+    [...h.children].forEach((s, i) => {
+        s.classList.toggle('selected', i === selectedSlot);
+
+        const t = hotbar[i];
+        s.innerHTML = t
+            ? `<img src="${getIcon(t)}"><span class="slot-count">∞</span>`
+            : '';
     });
 }
 
@@ -848,10 +1536,12 @@ function toggleInventory() {
         }
 
         function updateInfo() {
-            document.getElementById('info').innerHTML = 
-            `Minecraft Clone<br>Mode: ${player.flying ? 'FLYING' : 'SURVIVAL'}<br>
-             XYZ: ${player.x.toFixed(1)} / ${player.y.toFixed(1)} / ${player.z.toFixed(1)}`;
-        }
+    document.getElementById('info').innerHTML = 
+        `BlockWorld v0.3<br>
+        R = Reload World<br>
+        XYZ: ${player.x.toFixed(1)} / ${player.y.toFixed(1)} / ${player.z.toFixed(1)}`;
+}
+
 
         // --- EVENTS ---
         const raycaster = new THREE.Raycaster();
@@ -886,84 +1576,68 @@ function shouldRenderBlock(x, y, z) {
     return dx*dx + dy*dy + dz*dz <= VIEW_DISTANCE * VIEW_DISTANCE;
 }
 
-        function updateSingleBlockVisual(x, y, z) {
-    const neighbors = [
-        [0,0,0],
-        [1,0,0], [-1,0,0],
-        [0,1,0], [0,-1,0],
-        [0,0,1], [0,0,-1]
-    ];
 
-    neighbors.forEach(([ox, oy, oz]) => {
-        const nx = x + ox;
-        const ny = y + oy;
-        const nz = z + oz;
-        const key = `${nx},${ny},${nz}`;
-        const type = worldData[key];
 
-        // remove old mesh
-        if (worldMeshes.has(key)) {
-            scene.remove(worldMeshes.get(key));
-            worldMeshes.delete(key);
-        }
+        function getRaycastTarget() {
+    const dir = new THREE.Vector3();
+    camera.getWorldDirection(dir);
+    raycaster.set(camera.position, dir);
 
-        // add back ONLY if not occluded
-        if (type && !isBlockObscured(nx, ny, nz)) {
-            const mesh = new THREE.Mesh(blockGeo, materials[type]);
-            mesh.position.set(nx, ny, nz);
-            mesh.userData = { type, x: nx, y: ny, z: nz };
-            scene.add(mesh);
-            worldMeshes.set(key, mesh);
-        }
-    });
+    // We now check against the InstancedMeshes, not individual blocks
+    const meshesToCheck = Object.values(instancedMeshes);
+    const hits = raycaster.intersectObjects(meshesToCheck);
+
+    if (hits.length > 0 && hits[0].distance < 6) {
+        const hit = hits[0];
+        
+        // --- KEY CHANGE: Calculate position from Matrix ---
+        const matrix = new THREE.Matrix4();
+        hit.object.getMatrixAt(hit.instanceId, matrix);
+        
+        const position = new THREE.Vector3();
+        position.setFromMatrixPosition(matrix);
+        
+        // Round to nearest whole number to get grid coordinates
+        return {
+            x: Math.round(position.x),
+            y: Math.round(position.y),
+            z: Math.round(position.z),
+            face: hit.face,
+            distance: hit.distance
+        };
+    }
+    return null;
 }
 
+// Update your mouse listener to use this:
+document.addEventListener('mousedown', e => {
+    if (!mouseLocked || inventoryOpen) return;
+    startSwing();
 
+    const target = getRaycastTarget();
+    
+    if (target) {
+        const {x, y, z, face} = target;
 
-        document.addEventListener('mousedown', e => {
-            if (!mouseLocked || inventoryOpen) return;
-            const dir = new THREE.Vector3(); camera.getWorldDirection(dir);
-            raycaster.set(camera.position, dir);
-            const hits = raycaster.intersectObjects(Array.from(worldMeshes.values()));
-            if(hits.length > 0 && hits[0].distance < 6) {
-                const hit = hits[0];
-                const {x,y,z} = hit.object.userData;
-                if (e.button === 0) {
-    setBlockData(x, y, z, null);
-    updateSingleBlockVisual(x, y, z);
-    playSound('break');
-}
-
-                else if(e.button === 2 && hotbar[selectedSlot]) {
-                    const nx = x + hit.face.normal.x;
-                    const ny = y + hit.face.normal.y;
-                    const nz = z + hit.face.normal.z;
-                    // Don't place inside player
-                    // ✅ Correct player collision check
-                    if (blockIntersectsPlayer(nx, ny, nz)) return;
-                    setBlockData(nx, ny, nz, hotbar[selectedSlot]);
-                    playSound('place');
-                    updateSingleBlockVisual(nx, ny, nz);
-                }
+        if (e.button === 0) { // Left Click (Break)
+            setBlockData(x, y, z, null);
+            playSound('break');
+            renderWorld(); // Re-build the instances
+        } 
+        else if (e.button === 2) { // Right Click (Place)
+            const nx = x + face.normal.x;
+            const ny = y + face.normal.y;
+            const nz = z + face.normal.z;
+            
+            if (!blockIntersectsPlayer(nx, ny, nz) && hotbar[selectedSlot]) {
+                setBlockData(nx, ny, nz, hotbar[selectedSlot]);
+                playSound('place');
+                renderWorld(); // Re-build the instances
             }
-        });
+        }
+    }
+});
 
-        document.addEventListener('keydown', e => {
-            const k = e.key.toLowerCase(); keys[k] = true;
-            if(k === 'e') {
-                inventoryOpen = !inventoryOpen;
-                document.getElementById('inventory').classList.toggle('visible');
-                if(inventoryOpen) { document.exitPointerLock(); updateInventory(); }
-                else renderer.domElement.requestPointerLock();
-            }
-            if(k === 'g') { player.flying = !player.flying; updateInfo(); }
-            if (k >= '1' && k <= '9') {
-    selectedSlot = k - 1;
-    updateHotbar();
-    updateHeldItem();
-}
-
-        });
         document.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
         
         document.addEventListener('wheel', e => {
@@ -986,16 +1660,27 @@ function shouldRenderBlock(x, y, z) {
     if (!inventoryOpen) renderer.domElement.requestPointerLock();
 });
 
-let joyX = 0;
-let joyY = 0;
-let joyActive = false;
+document.addEventListener('keydown', e => {
+    const k = e.key.toLowerCase();
+    keys[k] = true;
+    
 
+    
+    if (k === 'r') location.reload();
 
+    if (k >= '1' && k <= '9') {
+        selectedSlot = parseInt(k) - 1;
+        updateHotbar();
+        updateHeldItem();
+    }
+});
+
+document.addEventListener('keyup', e => {
+    keys[e.key.toLowerCase()] = false;
+});
         document.addEventListener('pointerlockchange', () => mouseLocked = !!document.pointerLockElement);
         window.addEventListener('resize', () => { camera.aspect=window.innerWidth/window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); });
-const joystick = document.getElementById('joystick');
-const stick = document.getElementById('stick');
-const jumpBtn = document.getElementById('jumpBtn');
+
 jumpBtn.addEventListener('touchstart', e => {
     e.preventDefault();
 
@@ -1006,43 +1691,103 @@ jumpBtn.addEventListener('touchstart', e => {
 });
 
 
-const invBtn = document.getElementById('invBtn');
-invBtn.addEventListener('touchstart', e => {
-    e.preventDefault();
-    toggleInventory();
-});
-
-
-
-if (joystick && stick && jumpBtn && invBtn) {
-    joystick.addEventListener('touchstart', e => {
-        joyActive = true;
-    });
 renderer.domElement.addEventListener('touchmove', e => {
     e.preventDefault();
 }, { passive: false });
 
+    let joyX = 0;
+let joyY = 0;
+let joyTouchId = null;
+
+const joystick = document.getElementById('joystick');
+const stick = document.getElementById('stick');
+
+if (joystick && stick) {
+
+    joystick.addEventListener('touchstart', e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (joyTouchId !== null) return;
+
+        const t = e.changedTouches[0];
+        joyTouchId = t.identifier;
+    }, { passive: false });
+
     joystick.addEventListener('touchmove', e => {
+        e.preventDefault();
+        e.stopPropagation();
+
+        let t = null;
+        for (const touch of e.changedTouches) {
+            if (touch.identifier === joyTouchId) {
+                t = touch;
+                break;
+            }
+        }
+        if (!t) return;
+
         const rect = joystick.getBoundingClientRect();
-        const t = e.touches[0];
-        joyX = (t.clientX - rect.left - 60) / 60;
-        joyY = (t.clientY - rect.top - 60) / 60;
-        joyX = Math.max(-1, Math.min(1, joyX));
-        joyY = Math.max(-1, Math.min(1, joyY));
-        stick.style.transform = `translate(${joyX * 30}px, ${joyY * 30}px)`;
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
 
-        keys['w'] = joyY < -0.3;
-        keys['s'] = joyY > 0.3;
-        keys['a'] = joyX < -0.3;
-        keys['d'] = joyX > 0.3;
-    });
+        let dx = t.clientX - cx;
+        let dy = t.clientY - cy;
 
-    joystick.addEventListener('touchend', () => {
+        const radius = rect.width / 2;
+        const dist = Math.hypot(dx, dy);
+
+        // Smooth circular clamp
+        const clampedDist = Math.min(dist, radius);
+        const angle = Math.atan2(dy, dx);
+
+        dx = Math.cos(angle) * clampedDist;
+        dy = Math.sin(angle) * clampedDist;
+
+        // Normalized joystick values
+        joyX = dx / radius;
+        joyY = dy / radius;
+
+        // Deadzone (prevents jitter at corners)
+        const dead = 0.15;
+        if (Math.abs(joyX) < dead) joyX = 0;
+        if (Math.abs(joyY) < dead) joyY = 0;
+
+        stick.style.transform =
+            `translate(-50%, -50%) translate(${dx}px, ${dy}px)`;
+
+        // Clear keys first
+        keys['w'] = keys['a'] = keys['s'] = keys['d'] = false;
+
+        // Direction based on angle (NOT square axes)
+        if (joyY < 0) keys['w'] = true;
+        if (joyY > 0) keys['s'] = true;
+        if (joyX < 0) keys['a'] = true;
+        if (joyX > 0) keys['d'] = true;
+
+    }, { passive: false });
+
+    joystick.addEventListener('touchend', e => {
+        for (const t of e.changedTouches) {
+            if (t.identifier === joyTouchId) {
+                joyTouchId = null;
+                break;
+            }
+        }
+
         joyX = joyY = 0;
-        stick.style.transform = 'translate(0,0)';
+        stick.style.transform = 'translate(-50%, -50%)';
+        keys['w'] = keys['a'] = keys['s'] = keys['d'] = false;
+    }, { passive: false });
+
+    joystick.addEventListener('touchcancel', () => {
+        joyTouchId = null;
+        joyX = joyY = 0;
+        stick.style.transform = 'translate(-50%, -50%)';
         keys['w'] = keys['a'] = keys['s'] = keys['d'] = false;
     });
 }
+
 
 /* ---------------------------
    MOBILE: unified multi-touch
@@ -1054,36 +1799,60 @@ renderer.domElement.addEventListener('touchmove', e => {
    --------------------------- */
 
 if (IS_MOBILE) {
-    const activeTouches = {}; // keyed by touch.identifier
+    const activeTouches = {}; 
     const HOLD_MS = 220;
 
-    function breakBlock() {
+    function getMobileTarget() {
         const dir = new THREE.Vector3();
         camera.getWorldDirection(dir);
         raycaster.set(camera.position, dir);
-        const hits = raycaster.intersectObjects(Array.from(worldMeshes.values()));
+
+        // Check against all instanced managers
+        const meshesToCheck = Object.values(instancedMeshes);
+        const hits = raycaster.intersectObjects(meshesToCheck);
+
         if (hits.length > 0 && hits[0].distance < 6) {
-            const {x, y, z} = hits[0].object.userData;
-            setBlockData(x, y, z, null);
-            updateSingleBlockVisual(x, y, z);
+            const hit = hits[0];
+            const matrix = new THREE.Matrix4();
+            
+            // Get the specific block's matrix
+            hit.object.getMatrixAt(hit.instanceId, matrix);
+            
+            const position = new THREE.Vector3();
+            position.setFromMatrixPosition(matrix);
+            
+            return {
+                x: Math.round(position.x),
+                y: Math.round(position.y),
+                z: Math.round(position.z),
+                face: hit.face
+            };
+        }
+        return null;
+    }
+
+    function breakBlock() {
+        const target = getMobileTarget();
+        if (target) {
+            startSwing();
+            setBlockData(target.x, target.y, target.z, null);
             playSound('break');
+            renderWorld(); // Force InstancedMesh to redraw
         }
     }
 
     function placeBlock() {
-        const dir = new THREE.Vector3();
-        camera.getWorldDirection(dir);
-        raycaster.set(camera.position, dir);
-        const hits = raycaster.intersectObjects(Array.from(worldMeshes.values()));
-        if (hits.length > 0 && hits[0].distance < 6) {
-            const hit = hits[0];
-            const nx = hit.object.userData.x + hit.face.normal.x;
-            const ny = hit.object.userData.y + hit.face.normal.y;
-            const nz = hit.object.userData.z + hit.face.normal.z;
+        const target = getMobileTarget();
+        if (target && hotbar[selectedSlot]) {
+            const nx = target.x + target.face.normal.x;
+            const ny = target.y + target.face.normal.y;
+            const nz = target.z + target.face.normal.z;
+
             if (!blockIntersectsPlayer(nx, ny, nz)) {
+                startSwing();
                 setBlockData(nx, ny, nz, hotbar[selectedSlot]);
-                updateSingleBlockVisual(nx, ny, nz);
                 playSound('place');
+                renderWorld(); // Force InstancedMesh to redraw
             }
         }
     }
@@ -1170,21 +1939,66 @@ if (IS_MOBILE) {
         }
     }, { passive: false });
 }
-
 /* ---------------------------
    End mobile input section
    --------------------------- */
 
         let lastTime = performance.now();
+function updateHighlight() {
+    const dir = new THREE.Vector3();
+    camera.getWorldDirection(dir);
+    raycaster.set(camera.position, dir);
 
+    // Instead of worldMeshes.values(), we check the instanced managers
+    const meshesToCheck = Object.values(instancedMeshes);
+    const hits = raycaster.intersectObjects(meshesToCheck);
+
+    if (hits.length > 0 && hits[0].distance < 6) {
+        const hit = hits[0];
+        
+        // Get the matrix of the specific instance we hit
+        const matrix = new THREE.Matrix4();
+        hit.object.getMatrixAt(hit.instanceId, matrix);
+        
+        // Extract the position from that matrix
+        const position = new THREE.Vector3();
+        position.setFromMatrixPosition(matrix);
+
+        // Snap highlight perfectly to the block center
+        // (Block coordinates are integers, we add 0.5 to center the 1x1 box)
+        highlightMesh.position.set(
+            Math.round(position.x) + 0.5, 
+            Math.round(position.y) + 0.5, 
+            Math.round(position.z) + 0.5
+        ); 
+        
+        highlightMesh.scale.set(1.05, 1.05, 1.05); 
+        highlightMesh.visible = true;
+    } else {
+        highlightMesh.visible = false;
+    }
+}
         function animate() {
             requestAnimationFrame(animate);
             const now = performance.now();
+            fpsFrames++;
+
+if (now - fpsLastTime >= 1000) {
+    fpsValue = fpsFrames;
+    fpsFrames = 0;
+    fpsLastTime = now;
+    document.getElementById('fps').textContent = `FPS: ${fpsValue}`;
+}
+
             const dt = Math.min((now - lastTime) / 1000, 0.1);
+                const dt2 = (performance.now() - lastTime) / 1000;
             lastTime = now;
             if (gameStarted) {
     updatePlayer(dt);
     maybeUpdateWorld();
+    updateHighlight(); // ← highlight
+updateSwing(dt2);
+
     updateInfo();
             }
 
