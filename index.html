@@ -773,13 +773,20 @@ resize();
 handGroup.add(handMesh);
 
         // --- UI RENDERER (Cached) ---
-        const uiRenderer = new THREE.WebGLRenderer({ alpha: true });
-        uiRenderer.setSize(64,64);
-        const uiScene = new THREE.Scene();
-        const uiCam = new THREE.PerspectiveCamera(45, 1, 0.1, 10);
-        uiCam.position.set(1.5, 1.5, 1.5);
-        uiCam.lookAt(0.5, 0.5, 0.5);
-        uiScene.add(new THREE.AmbientLight(0xC2C2C2, 1.2));
+const uiRenderer = new THREE.WebGLRenderer({ alpha: true });
+uiRenderer.setSize(64,64);
+const uiScene = new THREE.Scene();
+const uiCam = new THREE.PerspectiveCamera(45, 1, 0.1, 10);
+uiCam.position.set(1.5, 1.5, 1.5);
+uiCam.lookAt(0.5, 0.5, 0.5);
+
+// 1. Lower the ambient light intensity (prevents the "White Block" look)
+uiScene.add(new THREE.AmbientLight(0xffffff, 0.7));
+
+// 2. Add a directional light to the UI scene so the icons have shadows/depth
+const uiLight = new THREE.DirectionalLight(0xffffff, 0.8);
+uiLight.position.set(1, 2, 1);
+uiScene.add(uiLight);
 
         // --- LIGHTING ---
         const ambient = new THREE.AmbientLight(0xC2C2C2, 0.6);
