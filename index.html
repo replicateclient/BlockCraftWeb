@@ -17,16 +17,174 @@
 
         canvas { display: block; }
         
-        #start-screen {
+/* Main Menu Styles */
+#main-menu {
     position: fixed;
     inset: 0;
-    background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+    z-index: 1000;
+}
+
+
+#panorama-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+}
+
+@keyframes panoramaSlide {
+    0% { background-position: 0% center; }
+    100% { background-position: 100% center; }
+}
+.menu-overlay {
+    position: absolute;
+    inset: 0;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.game-title {
+    font-size: 5rem;
+    color: white;
+    text-shadow: 
+        0 0 20px rgba(0, 0, 0, 0.8),
+        0 0 40px rgba(100, 200, 255, 0.4);
+    margin-bottom: 50px;
+    letter-spacing: 4px;
+}
+
+.main-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.menu-btn {
+    padding: 18px 80px;
+    font-size: 1.3rem;
+    background: linear-gradient(145deg, rgba(255,255,255,0.2), rgba(255,255,255,0.05));
+    backdrop-filter: blur(10px);
+    border: 2px solid rgba(255,255,255,0.4);
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+.menu-btn:hover {
+    background: linear-gradient(145deg, rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.6);
+}
+
+.version-label {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    color: rgba(255,255,255,0.6);
+    font-size: 0.9rem;
+}
+
+/* World Selection */
+#world-select {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
     z-index: 1000;
-    font-family: 'Segoe UI', Roboto, sans-serif;
+}
+
+.menu-box-large {
+    background: rgba(30, 30, 30, 0.95);
+    padding: 40px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    color: white;
+    backdrop-filter: blur(5px);
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+#world-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 30px 0;
+    min-height: 200px;
+}
+
+.world-card {
+    background: rgba(50, 50, 50, 0.8);
+    border: 2px solid rgba(255,255,255,0.2);
+    border-radius: 12px;
+    padding: 15px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.world-card:hover {
+    border-color: rgba(100, 200, 255, 0.6);
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(100, 200, 255, 0.3);
+}
+
+.world-card h3 {
+    margin: 0 0 10px 0;
+    font-size: 1.2rem;
+}
+
+.world-card p {
+    margin: 5px 0;
+    color: #aaa;
+    font-size: 0.9rem;
+}
+
+.world-card .delete-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 50, 50, 0.8);
+    border: none;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.8rem;
+}
+
+.world-card .delete-btn:hover {
+    background: rgba(255, 30, 30, 1);
+}
+
+.menu-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 20px;
+}
+
+.menu-actions button {
+    padding: 12px 30px;
+    font-size: 1.1rem;
+}
+
+#create-world, #settings-menu {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #1e1e1e, #2c2c2c);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
 }
 
 .menu-box {
@@ -565,12 +723,38 @@ select:focus {
 
 </head>
 <body>
+<!-- Main Menu -->
+<div id="main-menu">
+    <canvas id="panorama-canvas"></canvas>
+    <div class="menu-overlay">
+        <h1 class="game-title">BlockWorld v0.4</h1>
+        <div class="main-buttons">
+            <button class="menu-btn" onclick="showWorldSelect()">Play</button>
+            <button class="menu-btn" onclick="showSettings()">Settings</button>
+        </div>
+        <div class="version-label">v0.4</div>
+    </div>
+</div>
 
-<div id="start-screen">
+<!-- World Selection Screen -->
+<div id="world-select" style="display:none;">
+    <div class="menu-box-large">
+        <h1>Select World</h1>
+        <div id="world-list"></div>
+        <div class="menu-actions">
+            <button onclick="showCreateWorld()">Create New World</button>
+            <button onclick="showMainMenu()">Back</button>
+        </div>
+    </div>
+</div>
+
+<!-- Create World Screen -->
+<div id="create-world" style="display:none;">
     <div class="menu-box">
-        <h1>BlockWorld</h1>
+        <h1>Create New World</h1>
 
-        <input type="text" id="seed" placeholder="Enter Seed (optional)">
+        <input type="text" id="worldName" placeholder="World Name" value="New World">
+        <input type="text" id="seed" placeholder="Seed (optional)">
 
         <div class="option">
             <label for="worldSize">World Size</label>
@@ -596,18 +780,56 @@ select:focus {
                 <span class="toggle-label">Floating Islands</span>
             </label>
         </div>
-<div class="option checkbox">
-            <label class="toggle">
-                <input type="checkbox" id="shadowsOn"> 
-                <span class="slider"></span>
-                <span class="toggle-label">Enable Shadows (Warning: Lag!)</span>
-            </label>
+        <div class="menu-actions">
+            <button onclick="createNewWorld()">Create</button>
+            <button onclick="showWorldSelect()">Cancel</button>
         </div>
-        <button onclick="startGame()">Create World</button>
     </div>
 </div>
 
+<!-- Settings Screen -->
+<div id="settings-menu" style="display:none;">
+    <div class="menu-box">
+        <h1>Settings</h1>
+        
+        <div class="option">
+            <label for="renderDistance">Render Distance</label>
+            <select id="renderDistance">
+                <option value="20">Low (20)</option>
+                <option value="30" selected>Medium (30)</option>
+                <option value="40">High (40)</option>
+                <option value="50">Ultra (50)</option>
+            </select>
+        </div>
 
+        <div class="option checkbox">
+            <label class="toggle">
+                <input type="checkbox" id="settingsShadows">
+                <span class="slider"></span>
+                <span class="toggle-label">Shadows</span>
+            </label>
+        </div>
+        <div class="option checkbox">
+    <label class="toggle">
+        <input type="checkbox" id="settingsLeavesAlpha">
+        <span class="slider"></span>
+        <span class="toggle-label">Fancy Leaves</span>
+    </label>
+</div>
+        <div class="option checkbox">
+            <label class="toggle">
+                <input type="checkbox" id="settingsFPS">
+                <span class="slider"></span>
+                <span class="toggle-label">Show FPS</span>
+            </label>
+        </div>
+
+        <div class="menu-actions">
+            <button onclick="saveSettings()">Save</button>
+            <button onclick="showMainMenu()">Back</button>
+        </div>
+    </div>
+</div>
     
 <div id="loading-screen" style="display:none;">
     <div class="menu-box">
@@ -649,7 +871,8 @@ select:focus {
 
     <script>
         let gameStarted = false;
-const VIEW_DISTANCE = 30;
+let VIEW_DISTANCE = 30;
+let currentWorldId = null;
 let lastCellX = Infinity;
 let lastCellZ = Infinity;
 const IS_MOBILE = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
@@ -687,6 +910,131 @@ scene.add(sun);
 scene.add(sun.target); // Important for moving the light later
         document.body.appendChild(renderer.domElement);
         const canvas = renderer.domElement;
+        // World Management System
+// World Management System
+// World Management System
+const WorldManager = {
+    // Check if we're in Claude.ai or local environment
+    isClaudeEnv: typeof window.storage !== 'undefined',
+
+    async saveWorld(worldId, worldConfig) {
+        try {
+            const saveData = {
+                id: worldId,
+                name: worldConfig.name,
+                seed: worldConfig.seed,
+                size: worldConfig.size,
+                type: worldConfig.type,
+                floatingIslands: worldConfig.floatingIslands,
+                shadows: worldConfig.shadows,
+                playerPos: {
+                    x: player.x,
+                    y: player.y,
+                    z: player.z
+                },
+                blocks: worldConfig.blocks || {},  // Use blocks from config
+                lastPlayed: Date.now()
+            };
+
+            const jsonData = JSON.stringify(saveData);
+
+            if (this.isClaudeEnv) {
+                await window.storage.set(`world_${worldId}`, jsonData);
+            } else {
+                // Fallback to localStorage
+                localStorage.setItem(`world_${worldId}`, jsonData);
+            }
+            
+            console.log(`World "${worldConfig.name}" saved successfully!`);
+            return true;
+        } catch (e) {
+            console.error('Failed to save world:', e);
+            return false;
+        }
+    },
+
+    async loadWorld(worldId) {
+        try {
+            let data;
+            if (this.isClaudeEnv) {
+                const result = await window.storage.get(`world_${worldId}`);
+                if (!result) return null;
+                data = result.value;
+            } else {
+                // Fallback to localStorage
+                data = localStorage.getItem(`world_${worldId}`);
+                if (!data) return null;
+            }
+            
+            const worldData = JSON.parse(data);
+            console.log(`World "${worldData.name}" loaded successfully!`);
+            return worldData;
+        } catch (e) {
+            console.error('Failed to load world:', e);
+            return null;
+        }
+    },
+
+    async listWorlds() {
+        try {
+            const worlds = [];
+            
+            if (this.isClaudeEnv) {
+                const result = await window.storage.list('world_');
+                if (!result || !result.keys) return [];
+                
+                for (const key of result.keys) {
+                    try {
+                        const data = await window.storage.get(key);
+                        if (data) {
+                            const world = JSON.parse(data.value);
+                            worlds.push(world);
+                        }
+                    } catch (e) {
+                        console.error('Failed to parse world:', e);
+                    }
+                }
+            } else {
+                // Fallback to localStorage
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    if (key && key.startsWith('world_')) {
+                        try {
+                            const data = localStorage.getItem(key);
+                            if (data) {
+                                const world = JSON.parse(data);
+                                worlds.push(world);
+                            }
+                        } catch (e) {
+                            console.error('Failed to parse world:', e);
+                        }
+                    }
+                }
+            }
+            
+            return worlds.sort((a, b) => b.lastPlayed - a.lastPlayed);
+        } catch (e) {
+            console.error('Failed to list worlds:', e);
+            return [];
+        }
+    },
+
+    async deleteWorld(worldId) {
+        try {
+            if (this.isClaudeEnv) {
+                await window.storage.delete(`world_${worldId}`);
+            } else {
+                // Fallback to localStorage
+                localStorage.removeItem(`world_${worldId}`);
+            }
+            return true;
+        } catch (e) {
+            console.error('Failed to delete world:', e);
+            return false;
+        }
+    }
+};
+
 function fakeLoading(onDone) {
     let progress = 0;
     const fill = document.getElementById('loading-fill');
@@ -732,7 +1080,7 @@ const handMat = new THREE.MeshLambertMaterial({ color: 0xE0C097 });
 const handMesh = new THREE.Mesh(handGeo, handMat);
 handMesh.position.set(0.35, -0.45, -0.6);
 handMesh.rotation.set(
-    THREE.MathUtils.degToRad(80),  // Rotate 80° on X to point forward
+    THREE.MathUtils.degToRad(80),
     0,
     0
 );
@@ -789,7 +1137,7 @@ uiLight.position.set(1, 2, 1);
 uiScene.add(uiLight);
 
         // --- LIGHTING ---
-        const ambient = new THREE.AmbientLight(0xC2C2C2, 0.6);
+        const ambient = new THREE.AmbientLight(0xC2C2C2, 0.55);
         scene.add(ambient);
         
         // --- MATERIALS ---
@@ -804,7 +1152,8 @@ function createMat(url, color = 0xC2C2C2, alphaTest = 0) {
         map: t,
         color: color,
         alphaTest: alphaTest,
-        side: THREE.DoubleSide
+        side: THREE.DoubleSide,
+        vertexColors: true
     });
 }
 
@@ -869,6 +1218,8 @@ async function preloadMaterials() {
 
 const blockGeo = new THREE.BoxGeometry(1, 1, 1);
         blockGeo.translate(0.5, 0.5, 0.5); 
+        // Create a separate geometry for held items (centered at origin)
+const heldBlockGeo = new THREE.BoxGeometry(1, 1, 1);
 function createBlockMesh(type, x, y, z) {
     // choose material OR per-face array (use blockMaterialMap first)
     let mat = blockMaterialMap[type] || materials[type] || materials.stone;
@@ -999,15 +1350,19 @@ function updateHeldItem() {
     }
 
     const blockType = hotbar[selectedSlot];
-    if (blockType) {
-        // Use blockMaterialMap so grass/wood show correct faces in the icon/held mesh
-        const mat = blockMaterialMap[blockType] || materials[blockType] || materials.stone;
-        heldBlockMesh = new THREE.Mesh(blockGeo, mat);
-        heldBlockMesh.scale.set(0.45, 0.45, 0.45);
-        handMesh.add(heldBlockMesh);
-        heldBlockMesh.position.set(-0.1, -1, -0.5);
-        heldBlockMesh.rotation.set(0, 0, 0);
-    }
+if (blockType) {
+    let mat = blockMaterialMap[blockType] || materials[blockType] || materials.stone;
+    
+    heldBlockMesh = new THREE.Mesh(heldBlockGeo, mat);
+    heldBlockMesh.scale.set(0.4, 0.4, 0.4);
+    handMesh.add(heldBlockMesh);
+    heldBlockMesh.position.set(0, -0.3, -0.2);
+    heldBlockMesh.rotation.set(
+        -Math.PI / 2.5,  // Counter-rotate to make top face up
+        0,               // NO 45° rotation
+        0
+    );
+}
 }
 function renderWorld() {
     // 1. Reset counts
@@ -1094,11 +1449,11 @@ function findSpawnPosition() {
     };
 }
 
-function generateStuff() {
-    const worldSize = parseInt(document.getElementById('worldSize').value);
-const floatingIslands = document.getElementById('floatingIslands').checked;
-const worldType = document.getElementById('worldType').value;
-
+function generateWorld(worldConfig) {
+const worldSize = worldConfig.size;
+    const floatingIslands = worldConfig.floatingIslands;
+    const worldType = worldConfig.type;
+    const seedInput = worldConfig.seed;
 
             if (IS_MOBILE) {
     document.getElementById('mobile-ui').style.display = 'block';
@@ -1107,16 +1462,11 @@ const worldType = document.getElementById('worldType').value;
     document.querySelectorAll('.mobile-btn, #joystick')
         .forEach(el => el.style.pointerEvents = 'auto');
 }
+const input = seedInput;
+// Simple hash for seed
+const seed = input ? parseInt(input.split('').reduce((a,b)=>a+b.charCodeAt(0),0)) : Math.floor(Math.random()*10000);
 
-
-            const input = document.getElementById('seed').value;
-            // Simple hash for seed
-            const seed = input ? parseInt(input.split('').reduce((a,b)=>a+b.charCodeAt(0),0)) : Math.floor(Math.random()*10000);
-
-            
-            // 1. Generate Data First
-            const size = worldSize;
-
+const size = worldSize;  // ✅ Add this line
             for(let x = -size; x <= size; x++) {
                 for(let z = -size; z <= size; z++) {
                     // Use Perlin Noise for smooth terrain
@@ -1231,9 +1581,12 @@ player.y = spawn.y + 5; // Spawn 5 blocks ABOVE the ground
 player.vy = 0;
 renderWorld(); // Initial render
 
-            updateHotbar();
-            updateInfo();
-            updateHeldItem();
+            // Force hotbar refresh after world is ready
+setTimeout(() => {
+    updateHotbar();
+    updateInfo();
+    updateHeldItem();
+}, 100);
 
         }
 
@@ -1384,37 +1737,298 @@ function updateSwing(dt) {
     handMesh.position.y = handBasePos.y + 0.2 * forwardUp - 0.4 * phase2;
     handMesh.position.z = handBasePos.z - 0.3 * forwardUp;
     
-    // Block follows hand
-    if (heldBlockMesh) {
-heldBlockMesh.position.set(-0.1,-1, -0.5);
-
-    heldBlockMesh.rotation.set(0, 0, 0);    // align with hand
-    }
+// Block follows hand
+if (heldBlockMesh) {
+    heldBlockMesh.position.set(0, -0.3, -0.2);
+    heldBlockMesh.rotation.set(-Math.PI / 2.5, 0, 0);
+}
     
-    // Reset when done
-    if (t >= 1) {
-        swinging = false;
-        swingTime = 0;
-        handMesh.position.copy(handBasePos);
-        if (heldBlockMesh) {
-heldBlockMesh.position.set(-0.1,-1, -0.5);
-
-    heldBlockMesh.rotation.set(0, 0, 0);    // align with hand
-        }
+// Reset when done
+if (t >= 1) {
+    swinging = false;
+    swingTime = 0;
+    handMesh.position.copy(handBasePos);
+    if (heldBlockMesh) {
+        heldBlockMesh.position.set(0, -0.3, -0.2);
+        heldBlockMesh.rotation.set(-Math.PI / 2.5, 0, 0);
     }
 }
-async function startGame() {
-    // 1. Get the checkbox value
-    const useShadows = document.getElementById('shadowsOn').checked;
+}
+// 3D Panorama System (FNAF-style)
+let panoramaScene, panoramaCamera, panoramaRenderer, panoramaSkybox;
+let panoramaRotation = 0;
+let panoramaMouseX = 0;
+let panoramaMouseY = 0;
 
-    // 2. Apply settings to Renderer and Sun
-    renderer.shadowMap.enabled = useShadows;
-    renderer.shadowMap.autoUpdate = useShadows;
-    sun.castShadow = useShadows;
-    await preloadMaterials();
-    initInstancedMeshes()
-    // Hide menu
-    document.getElementById('start-screen').style.display = 'none';
+function initPanorama() {
+    const canvas = document.getElementById('panorama-canvas');
+    if (!canvas) return;
+
+    // Setup scene
+    panoramaScene = new THREE.Scene();
+    
+    // Camera with perspective
+    panoramaCamera = new THREE.PerspectiveCamera(
+        75, 
+        window.innerWidth / window.innerHeight, 
+        0.1, 
+        1000
+    );
+    panoramaCamera.position.set(0, 0, 0);
+    
+    // Renderer
+    panoramaRenderer = new THREE.WebGLRenderer({ 
+        canvas: canvas,
+        antialias: true 
+    });
+    panoramaRenderer.setSize(window.innerWidth, window.innerHeight);
+    
+    // Create skybox sphere (inside-out)
+    const skyboxGeo = new THREE.SphereGeometry(50, 32, 32);
+    
+    // Load panorama texture
+    const textureLoader = new THREE.TextureLoader();
+    const panoramaTexture = textureLoader.load('guistuff/panorama.png', () => {
+        // Texture loaded successfully
+        console.log('Panorama loaded');
+    }, undefined, () => {
+        // Fallback: create procedural skybox if image fails
+        console.warn('Panorama image not found, using procedural sky');
+        createProceduralSkybox();
+    });
+    
+    const skyboxMat = new THREE.MeshBasicMaterial({
+        map: panoramaTexture,
+        side: THREE.BackSide // Render inside of sphere
+    });
+    
+    panoramaSkybox = new THREE.Mesh(skyboxGeo, skyboxMat);
+    panoramaScene.add(panoramaSkybox);
+    
+    // Mouse tracking for perspective
+    document.addEventListener('mousemove', (e) => {
+        if (document.getElementById('main-menu').style.display !== 'none') {
+            panoramaMouseX = (e.clientX / window.innerWidth) * 2 - 1;
+            panoramaMouseY = -(e.clientY / window.innerHeight) * 2 + 1;
+        }
+    });
+    
+    // Handle window resize
+    window.addEventListener('resize', () => {
+        if (panoramaCamera && panoramaRenderer) {
+            panoramaCamera.aspect = window.innerWidth / window.innerHeight;
+            panoramaCamera.updateProjectionMatrix();
+            panoramaRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+    });
+    
+    // Start animation
+    animatePanorama();
+}
+
+function createProceduralSkybox() {
+    // Fallback: Create a simple gradient skybox
+    const canvas = document.createElement('canvas');
+    canvas.width = 2048;
+    canvas.height = 1024;
+    const ctx = canvas.getContext('2d');
+    
+    // Sky gradient
+    const gradient = ctx.createLinearGradient(0, 0, 0, 1024);
+    gradient.addColorStop(0, '#87CEEB');
+    gradient.addColorStop(1, '#E0F6FF');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, 2048, 1024);
+    
+    // Add some clouds
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.5)';
+    for (let i = 0; i < 20; i++) {
+        const x = Math.random() * 2048;
+        const y = Math.random() * 512;
+        const w = 100 + Math.random() * 200;
+        const h = 40 + Math.random() * 60;
+        ctx.fillRect(x, y, w, h);
+    }
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    panoramaSkybox.material.map = texture;
+    panoramaSkybox.material.needsUpdate = true;
+}
+
+function animatePanorama() {
+    if (!panoramaRenderer || !panoramaScene || !panoramaCamera) return;
+    
+    // Only animate if main menu is visible
+    if (document.getElementById('main-menu').style.display !== 'none') {
+        requestAnimationFrame(animatePanorama);
+        
+        // Slow auto-rotation
+        panoramaRotation -= 0.0008;
+        
+        // Mouse-based perspective (FNAF-style)
+        const targetRotationY = panoramaRotation;
+        const targetRotationX = panoramaCamera.rotation.x;
+        
+        // Smooth camera movement
+        panoramaCamera.rotation.y += (targetRotationY - panoramaCamera.rotation.y);
+        panoramaCamera.rotation.x += (targetRotationX - panoramaCamera.rotation.x);
+        
+        // Render
+        panoramaRenderer.render(panoramaScene, panoramaCamera);
+    }
+}
+
+
+// Initialize on page load
+window.addEventListener('load', () => {
+    initPanorama();
+});
+
+// Update showMainMenu to start panorama
+function showMainMenu() {
+    document.getElementById('main-menu').style.display = 'block';
+    document.getElementById('world-select').style.display = 'none';
+    document.getElementById('create-world').style.display = 'none';
+    document.getElementById('settings-menu').style.display = 'none';
+    
+    // Start panorama animation
+    if (panoramaRenderer) {
+        animatePanorama();
+    }
+}
+async function showWorldSelect() {
+    document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('world-select').style.display = 'flex';
+    
+    const worldList = document.getElementById('world-list');
+    worldList.innerHTML = '<p style="color:#888;">Loading worlds...</p>';
+    
+    const worlds = await WorldManager.listWorlds();
+    
+    if (worlds.length === 0) {
+        worldList.innerHTML = '<p style="color:#888;">No worlds found. Create one!</p>';
+        return;
+    }
+    
+    worldList.innerHTML = '';
+    worlds.forEach(world => {
+        const card = document.createElement('div');
+        card.className = 'world-card';
+        card.innerHTML = `
+            <button class="delete-btn" onclick="deleteWorldConfirm('${world.id}', event)">Delete</button>
+            <h3>${world.name}</h3>
+            <p>Seed: ${world.seed || 'Random'}</p>
+            <p>Size: ${world.size === 30 ? 'Small' : world.size === 99 ? 'Medium' : 'Large'}</p>
+            <p>Last played: ${new Date(world.lastPlayed).toLocaleDateString()}</p>
+        `;
+        card.onclick = (e) => {
+            if (!e.target.classList.contains('delete-btn')) {
+                loadAndStartWorld(world.id);
+            }
+        };
+        worldList.appendChild(card);
+    });
+}
+
+function showCreateWorld() {
+    document.getElementById('world-select').style.display = 'none';
+    document.getElementById('create-world').style.display = 'flex';
+}
+
+function showSettings() {
+    document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('settings-menu').style.display = 'flex';
+}
+
+function saveSettings() {
+    const settings = {
+        renderDistance: document.getElementById('renderDistance').value,
+        showFPS: document.getElementById('settingsFPS').checked,
+        shadows: document.getElementById('settingsShadows').checked,
+        leavesAlpha: document.getElementById('settingsLeavesAlpha').checked
+    };
+    // Leaves Transparency Logic
+    const leavesAlpha = document.getElementById('settingsLeavesAlpha').checked;
+    if (materials.leaves) {
+        materials.leaves.transparent = leavesAlpha;
+        materials.leaves.opacity = leavesAlpha ? 0.8 : 1.0;
+        materials.leaves.needsUpdate = true;
+    }
+    // Save to localStorage
+    localStorage.setItem('blockworld_settings', JSON.stringify(settings));
+    
+    // Apply live
+    VIEW_DISTANCE = parseInt(settings.renderDistance);
+    document.getElementById('fps').style.display = settings.showFPS ? 'block' : 'none';
+    
+    showMainMenu();
+}
+
+// Add this to your window 'load' event to restore settings on startup
+window.addEventListener('load', () => {
+    const saved = localStorage.getItem('blockworld_settings');
+    if (saved) {
+        const s = JSON.parse(saved);
+        VIEW_DISTANCE = parseInt(s.renderDistance);
+        document.getElementById('renderDistance').value = s.renderDistance;
+        document.getElementById('settingsFPS').checked = s.showFPS;
+        document.getElementById('settingsShadows').checked = s.shadows;
+        document.getElementById('fps').style.display = s.showFPS ? 'block' : 'none';
+        document.getElementById('settingsLeavesAlpha').checked = s.leavesAlpha;
+
+        if (materials.leaves) {
+            materials.leaves.transparent = s.leavesAlpha;
+            materials.leaves.opacity = s.leavesAlpha ? 0.8 : 1.0;
+        }
+    }
+    initPanorama();
+});
+
+async function deleteWorldConfirm(worldId, event) {
+    event.stopPropagation();
+    if (confirm('Are you sure you want to delete this world? This cannot be undone!')) {
+        await WorldManager.deleteWorld(worldId);
+        showWorldSelect();
+    }
+}
+
+async function createNewWorld() {
+    const worldName = document.getElementById('worldName').value || 'New World';
+    const worldId = 'world_' + Date.now();
+    
+    currentWorldId = worldId;
+    
+    const worldConfig = {
+        id: worldId,
+        name: worldName,
+        seed: document.getElementById('seed').value,
+        size: parseInt(document.getElementById('worldSize').value),
+        type: document.getElementById('worldType').value,
+        floatingIslands: document.getElementById('floatingIslands').checked,
+        shadows: document.getElementById('settingsShadows').checked  // ← Use settings value
+    };
+    
+    startGame(worldConfig);
+}
+
+async function loadAndStartWorld(worldId) {
+    const worldData = await WorldManager.loadWorld(worldId);
+    if (!worldData) {
+        alert('Failed to load world!');
+        return;
+    }
+    
+    currentWorldId = worldId;
+    startGame(worldData, true);
+}
+async function startGame(worldConfig, isLoadingWorld = false) {
+    // ADD THIS LINE at the very top of the function
+    currentWorldConfig = worldConfig;
+    // Hide all menus
+    document.getElementById('main-menu').style.display = 'none';
+    document.getElementById('world-select').style.display = 'none';
+    document.getElementById('create-world').style.display = 'none';
+    document.getElementById('settings-menu').style.display = 'none';
 
     // Hide game UI
     document.getElementById('game-ui').classList.add('hidden-ui');
@@ -1422,6 +2036,18 @@ async function startGame() {
     // Show loading screen
     const loading = document.getElementById('loading-screen');
     loading.style.display = 'flex';
+
+    // Apply world settings
+    const useShadows = worldConfig.shadows;
+    renderer.shadowMap.enabled = useShadows;
+    renderer.shadowMap.autoUpdate = useShadows;
+    sun.castShadow = useShadows;
+const leavesAlpha = document.getElementById('settingsLeavesAlpha').checked;
+    materials.leaves.transparent = leavesAlpha;
+    materials.leaves.opacity = leavesAlpha ? 0.8 : 1.0;
+
+    await preloadMaterials();
+    initInstancedMeshes();
 
     // Start fake loading FIRST
     fakeLoading(() => {
@@ -1432,13 +2058,44 @@ async function startGame() {
         // Show UI
         document.getElementById('game-ui').classList.remove('hidden-ui');
 
+        // Enable mobile UI if needed
+        if (IS_MOBILE) {
+            document.getElementById('mobile-ui').style.display = 'block';
+            document.querySelectorAll('.mobile-btn, #joystick')
+                .forEach(el => el.style.pointerEvents = 'auto');
+        }
+
         lastTime = performance.now();
         animate();
     });
 
-    // ⚠️ Generate world AFTER browser has time to paint loading screen
+    // Generate world AFTER browser has time to paint loading screen
     setTimeout(() => {
-        generateStuff();
+        if (isLoadingWorld) {
+            // Load existing world data
+            for (const key in worldConfig.blocks) {
+                worldData[key] = worldConfig.blocks[key];
+            }
+
+            // Restore player position
+            if (worldConfig.playerPos) {
+                player.x = worldConfig.playerPos.x;
+                player.y = worldConfig.playerPos.y;
+                player.z = worldConfig.playerPos.z;
+            }
+
+            renderWorld();
+        } else {
+            // Generate new world
+            generateWorld(worldConfig);
+        }
+
+        // Force hotbar refresh after world is ready
+        setTimeout(() => {
+            updateHotbar();
+            updateInfo();
+            updateHeldItem();
+        }, 100);
     }, 50);
 }
 
@@ -1458,14 +2115,22 @@ function maybeUpdateWorld() {
 
         // --- UI SYSTEM ---
         const iconCache = {};
-        function getIcon(type) {
+function getIcon(type) {
     if (!type) return '';
     if (iconCache[type]) return iconCache[type];
 
-   const mesh = new THREE.Mesh(blockGeo, blockMaterialMap[type] || materials.stone);
+    const mat = blockMaterialMap[type] || materials.stone;
+    
+    // Check if textures are loaded - if not, return placeholder
+    if (Array.isArray(mat)) {
+        // Multi-material array (like grass)
+        if (!mat[0].map || !mat[0].map.image) return '';
+    } else {
+        // Single material
+        if (!mat.map || !mat.map.image) return '';
+    }
 
-
-    // 🔽 MAKE ICON BLOCK SMALLER
+    const mesh = new THREE.Mesh(blockGeo, mat);
     mesh.scale.set(0.65, 0.65, 0.65);
     mesh.position.set(0.175, 0.175, 0.175);
 
@@ -1544,8 +2209,8 @@ function toggleInventory() {
 
         function updateInfo() {
     document.getElementById('info').innerHTML = 
-        `BlockWorld v0.3<br>
-        R = Reload World<br>
+        `BlockWorld v0.4<br>
+        R/Reload Page = Quit World<br>
         XYZ: ${player.x.toFixed(1)} / ${player.y.toFixed(1)} / ${player.z.toFixed(1)}`;
 }
 
@@ -1666,14 +2331,57 @@ document.addEventListener('mousedown', e => {
     if (!gameStarted || IS_MOBILE) return;
     if (!inventoryOpen) renderer.domElement.requestPointerLock();
 });
+function takePanoramaScreenshot() {
+    // Hide UI temporarily
+    const gameUI = document.getElementById('game-ui');
+    const wasHidden = gameUI.classList.contains('hidden-ui');
+    gameUI.classList.add('hidden-ui');
+    
+    // Wait one frame for UI to hide
+    requestAnimationFrame(() => {
+        // Render clean frame
+        renderer.render(scene, camera);
+        
+        // Get canvas data
+        const link = document.createElement('a');
+        link.download = `blockworld_panorama_${Date.now()}.png`;
+        link.href = renderer.domElement.toDataURL('image/png');
+        link.click();
+        
+        // Restore UI if it wasn't hidden before
+        if (!wasHidden) {
+            gameUI.classList.remove('hidden-ui');
+        }
+        
+        console.log('Panorama saved!');
+    });
+}
 
-document.addEventListener('keydown', e => {
+document.addEventListener('keydown', async (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
+        return;
+    }
+    
     const k = e.key.toLowerCase();
     keys[k] = true;
     
-
+ // F5 - Take Panorama Screenshot
+    if (e.key === 'F5') {
+        e.preventDefault();
+        takePanoramaScreenshot();
+        return;
+    }
     
-    if (k === 'r') location.reload();
+if (k === 'r') {
+    e.preventDefault();
+    if (gameStarted && currentWorldId && currentWorldConfig) {
+        currentWorldConfig.blocks = worldData;
+        // We force the code to wait until the save is 100% done before reloading
+        WorldManager.saveWorld(currentWorldId, currentWorldConfig).then(() => {
+            window.location.reload(); 
+        });
+    }
+}
 
     if (k >= '1' && k <= '9') {
         selectedSlot = parseInt(k) - 1;
@@ -1949,7 +2657,27 @@ if (IS_MOBILE) {
 /* ---------------------------
    End mobile input section
    --------------------------- */
+// Store current world config globally
+let currentWorldConfig = null;
 
+setInterval(async () => {
+    if (gameStarted && currentWorldId && currentWorldConfig) {
+        // CRITICAL: Pull the current world data into the config object
+        currentWorldConfig.blocks = { ...worldData }; 
+        currentWorldConfig.playerPos = { x: player.x, y: player.y, z: player.z };
+        
+        await WorldManager.saveWorld(currentWorldId, currentWorldConfig);
+        console.log('World auto-saved successfully');
+    }
+}, 30000);
+
+// Save on page unload
+window.addEventListener('beforeunload', async () => {
+    if (gameStarted && currentWorldId && currentWorldConfig) {
+        currentWorldConfig.blocks = worldData;
+        await WorldManager.saveWorld(currentWorldId, currentWorldConfig);
+    }
+});
         let lastTime = performance.now();
 function updateHighlight() {
     const dir = new THREE.Vector3();
